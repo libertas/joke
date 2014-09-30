@@ -1,33 +1,37 @@
 var http = require("http");
 var url = require("url");
 var fs = require("fs");
-var db = {}
+var sqlite3 = require('sqlite3').verbose();
+var db = new sqlite3.Database("joke.sqlite3");
+
+db.run("CREATE TABLE IF NOT EXISTS joke (Title, Content)");
 
 http.createServer(main).listen(8080);
 
 function html(name, content)
 {
-    var content = fs.readFileSync("templates/".concat(name).concat(".html"), "utf-8");
+    var content = fs.readFileSync("templates/" + name + ".html", "utf-8");
     return content;
 }
 
 function index(request, response)
 {
     var body = "";
-    body = body.concat(
+    body = body + 
     "<!DOCTYPE HTML>\
     <html>\
     <head><h1>Welcome to my blog</h1></head>\
-    <body>");
-    for(i in db)
-    {
-        if(i != undefined)
-            body = body.concat("<h3>").concat(i).concat("</h3>\n<p>").concat(db[i]).concat("</p>\n");
-    }
-    body = body.concat("</html>");
-    response.writeHead(200, {"Content-Type": "text/html"})
-    response.write(body);
-    response.end();
+    <body>";
+    db.all("SELECT * from joke", function(err, data){
+        data.forEach(function (datum){
+            body = body + "<h3>" + datum.Title + "</h3>\n<p>" + datum.Content + "</p>\n";
+            });
+        body = body + "</html>";
+        response.writeHead(200, {"Content-Type": "text/html"})
+        response.write(body);
+        response.end();
+    });
+    
 }
 
 function error(request, response)
@@ -43,8 +47,9 @@ function admin(request, response)
     if(query.Submit = "Submit")
     {
         title = query.Title;
-        content = query.Content
-        db[title] = content
+        content = query.Content;
+        if(title != undefined)
+            db.run("INSERT INTO joke VALUES (\"" + title + "\",\"" + content + "\")");
         
     }
     response.writeHead(200, {"Content-Type": "text/html"});
