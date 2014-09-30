@@ -1,7 +1,14 @@
 var http = require("http");
 var url = require("url");
+var fs = require("fs");
 
 http.createServer(main).listen(8080);
+
+function html(name)
+{
+    var content = fs.readFileSync("templates/".concat(name).concat(".html"), "utf-8");
+    return content;
+}
 
 function index(request, response)
 {
@@ -12,8 +19,8 @@ function index(request, response)
 
 function error(request, response)
 {
-    response.writeHead(404, {"Content-Type": "text/plain"});
-    response.write("404:Page Not Found");
+    response.writeHead(404, {"Content-Type": "text/html"});
+    response.write(html("error"));
     response.end();
 }
 

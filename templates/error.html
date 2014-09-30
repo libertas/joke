@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html>
+<head>ERROR</head>
+<body>
+    <p>404:Page Not Found</p>
+    <span id="jumphint">We are going back to index in <span id="timeout"></span> seconds</span>
+</body>
+<script>
+    var duration = 5000;
+    var timer = null;
+    var endTime = new Date().getTime() + duration;
+    function interval() {
+        var n = (endTime - new Date().getTime()) / 1000;
+        if (n < 0) return;
+        document.getElementById("timeout").innerHTML = n.toFixed(0);
+        setTimeout(interval, 5);
+    }
+    function stopJump() {
+        clearTimeout(timer);
+        document.getElementById("jumphint").style.display = "none";
+    }
+    window.onload = function() {
+        timer = setTimeout("window.location.href='/'", duration);
+        interval();
+    }
+</script>
+</html>
