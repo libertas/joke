@@ -24,9 +24,17 @@ function error(request, response)
     response.end();
 }
 
+function admin(request, response)
+{
+    response.writeHead(200, {"Content-Type": "text/html"});
+    response.write(html("admin"));
+    response.end();
+}
+
 function main(request, response)
 {
     pathname = url.parse(request.url).pathname;
     if(pathname == "/") index(request, response);
+    else if(pathname == "/admin") admin(request, response);
     else error(request, response);
 }
