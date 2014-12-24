@@ -9,9 +9,29 @@ router.get('/', function(req, res) {
   body = '<p>These are my passages:</p>';
   db.all('SELECT * FROM joke', function(err, data) {
     data.forEach(function (datum) {
-      body = body + "<h3>" + datum.Title + "</h3>\n<p>" + datum.Content + "</p>\n";
+      body = body + '<a href="/p/' + datum.Title + '"><h3>' + datum.Title + '</h3></a>\n<p>' + datum.Content.replace('\n', '<br />') + '</p>\n';
     });
     res.render('index', { title: 'My Blog', content: body});
+  });
+});
+
+router.param('title', function(req, res, next, title) {
+    req.title = title;
+    next();  
+});
+
+router.get('/p/:title', function(req, res) {
+  body = '<p>These are my passages:</p>';
+  expression = 'Title = \'' + req.title + '\''
+  db.get('SELECT Content FROM joke WHERE ' + expression, function(err, row) {
+    if (row == undefined) {
+	  res.status(500);
+      res.render('error', {message: 'Not Found',error: {status: 500, stack: 'No Such A Passage'}});
+    }
+    else {
+      body = row.Content;
+      res.render('passage', { title: req.title, content: body.replace('\n', '<br />')});
+    }
   });
 });
 
